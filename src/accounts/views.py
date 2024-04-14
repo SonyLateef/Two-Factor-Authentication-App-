@@ -1,7 +1,15 @@
-from flask import Blueprint
+from flask import Blueprint, redirect, render_template, request, url_for, flash
 from .forms import LoginForm, RegisterForm
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, current_user
 from src.utils import get_b64encoded_qr_image
+from models import User
+from forms import TwoFactorForm
+from __init__ import db
+import bcrypt
+
+HOME_URL = "core.home"
+SETUP_2FA_URL = "accounts.setup_two_factor_auth"
+VERIFY_2FA_URL = "accounts.verify_two_factor_auth"
 
 accounts_bp = Blueprint("accounts", __name__)
 @accounts_bp.route("/login", methods=["GET", "POST"])
@@ -45,3 +53,32 @@ def setup_two_factor():
     uri = current_user.get_authentication_setup_uri()
     base64_qr_image = get_b64encoded_qr_image(uri)
     return render_template("accounts/setup-2fa.html", secret=secret, qr_image=base64_qr_image)
+
+
+@accounts_bp.route("/verify-2fa", methods=["GET", "POST"])
+@login_required
+def verify_two_factor_auth():
+    form = TwoFactorForm(request.form)
+    if form.validate_on_submit():
+        if current_user.is_otp_valid(form.otp.data):
+            if current_user.is_two_factor_authentication_enabled:
+                flash("2FA verification successful. You are logged in!", "success")
+                return redirect(url_for(HOME_URL))
+            else:
+                try:
+                    current_user.is_two_factor_authentication_enabled = True
+                    db.session.commit()
+                    flash("2FA setup successful. You are logged in!", "success")
+                    return redirect(url_for(HOME_URL))
+                except Exception:
+                    db.session.rollback()
+                    flash("2FA setup failed. Please try again.", "danger")
+                    return redirect(url_for(VERIFY_2FA_URL))
+        else:
+            flash("Invalid OTP. Please try again.", "danger")
+            return redirect(url_for(VERIFY_2FA_URL))
+    else:
+        if not current_user.is_two_factor_authentication_enabled:
+            flash(
+                "You have not enabled 2-Factor Authentication. Please enable it first.", "info")
+        return render_template("accounts/verify-2fa.html", form=form)
