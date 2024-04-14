@@ -1,5 +1,6 @@
 from flask import Blueprint
 from .forms import LoginForm, RegisterForm
+from flask_login import login_required, login_user, logout_user
 
 accounts_bp = Blueprint("accounts", __name__)
 @accounts_bp.route("/login", methods=["GET", "POST"])
@@ -27,3 +28,10 @@ def login():
         else:
             flash("Invalid username and/or password.", "danger")
     return render_template("accounts/login.html", form=form)
+
+@accounts_bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("You were logged out.", "success")
+    return redirect(url_for("accounts.login"))
