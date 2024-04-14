@@ -1,6 +1,7 @@
 from flask import Blueprint
 from .forms import LoginForm, RegisterForm
 from flask_login import login_required, login_user, logout_user
+from src.utils import get_b64encoded_qr_image
 
 accounts_bp = Blueprint("accounts", __name__)
 @accounts_bp.route("/login", methods=["GET", "POST"])
@@ -35,3 +36,12 @@ def logout():
     logout_user()
     flash("You were logged out.", "success")
     return redirect(url_for("accounts.login"))
+
+
+@accounts_bp.route("setup/2fa")
+@login_required
+def setup_two_factor():
+    secret = current_user.secret_token
+    uri = current_user.get_authentication_setup_uri()
+    base64_qr_image = get_b64encoded_qr_image(uri)
+    return render_template("accounts/setup-2fa.html", secret=secret, qr_image=base64_qr_image)
