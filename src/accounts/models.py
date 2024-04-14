@@ -7,7 +7,7 @@ from src import bcrypt, db
 from config import Config
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
 
     __tablename__ = "users"
 
