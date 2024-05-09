@@ -3,7 +3,8 @@ from datetime import datetime
 import pyotp
 from flask_login import UserMixin
 
-from src import bcrypt, db
+from src import db
+from src import bcrypt
 from config import Config
 
 
