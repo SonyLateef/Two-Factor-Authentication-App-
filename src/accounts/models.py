@@ -2,12 +2,17 @@ from datetime import datetime
 
 import pyotp
 from flask_login import UserMixin
+from flask_bcrypt import Bcrypt
 
-from src import bcrypt, db
 from config import Config
 
+# Initialize bcrypt
+bcrypt = Bcrypt()
+
+from src import db
 
 class User(UserMixin, db.Model):
+    __tablename__ = "users"
 
     __tablename__ = "users"
 
