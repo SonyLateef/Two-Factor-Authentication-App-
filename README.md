@@ -1,11 +1,11 @@
 # Python 2FA using Google Authenticator, Flask, PyOTP
 
-Introduction: 
+## Introduction: 
 
 Our project aims to understanding the fundamentals of two-factor authentication by looking into vulnerabilities across systems, utilizing Python and the libraries for advanced 2FA features, and going further by developing a user-friendly website to host our 2FA application. One of the main tools we use is Google Authenticator in conjunction with other Python libaries such as PyOTP for one time passcode generations, QR code libraries, and many more. Our project is entirely built using Flask. 
 
 
-Setup and Use: 
+## Setup and Use: 
 
 To setup our 2FA application for the first time, you would have to follow the instructions below: 
 
