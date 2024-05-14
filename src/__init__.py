@@ -8,6 +8,15 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config.from_object(config("APP_SETTINGS"))
 
+
+
+# Create and initialize login manager
+login_manager = LoginManager()
+login_manager.login_view = "accounts.login"
+login_manager.login_message_category = "danger"
+login_manager.init_app(app)
+
+
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -22,7 +31,9 @@ from src.core.views import core_bp
 app.register_blueprint(accounts_bp)
 app.register_blueprint(core_bp)
 
+# Import User model here
 from src.accounts.models import User
+
 
 login_manager.login_view = "accounts.login"
 login_manager.login_message_category = "danger"
@@ -30,3 +41,9 @@ login_manager.login_message_category = "danger"
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.filter(User.id == int(user_id)).first()
+
+# Reload the user object from the user ID stored
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter(User.id == int(user_id)).first()
+

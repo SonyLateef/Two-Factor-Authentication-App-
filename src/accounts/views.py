@@ -1,10 +1,18 @@
+
 import os
+
+
 from src.utils import get_b64encoded_qr_image
 from .forms import LoginForm, RegisterForm, TwoFactorForm
 from src.accounts.models import User
 from src import db, bcrypt
 from flask_login import current_user, login_required, login_user, logout_user
 from flask import Blueprint, flash, redirect, render_template, request, url_for
+
+
+
+accounts_bp = Blueprint("accounts", __name__)
+
 
 accounts_bp = Blueprint("accounts", __name__)
 
@@ -13,12 +21,14 @@ HOME_URL = "core.home"
 SETUP_2FA_URL = "accounts.setup_two_factor_auth"
 VERIFY_2FA_URL = "accounts.verify_two_factor_auth"
 
+
 PASSAGE_APP_ID = "KDsGKfBTTEKGMnIJ6Pqhl0tf"
 
 @accounts_bp.route("/biometric")
 def biometric():
     return render_template('biometric.html', psg_app_id=PASSAGE_APP_ID)
     
+
 
 @accounts_bp.route("/register", methods=["GET", "POST"])
 def register():
@@ -88,6 +98,7 @@ def logout():
 @login_required
 def setup_two_factor_auth():
     form = TwoFactorForm()  # Create an instance of TwoFactorForm
+
     secret = current_user.secret_token
     uri = current_user.get_authentication_setup_uri()
     base64_qr_image = get_b64encoded_qr_image(uri)
