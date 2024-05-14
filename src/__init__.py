@@ -1,20 +1,19 @@
 from decouple import config
 from flask import Flask
-from flask_login import LoginManager
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager # Add this line
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from accounts.models import user
 
 app = Flask(__name__)
 app.config.from_object(config("APP_SETTINGS"))
-#create and initilize login manager
-login_manager = LoginManager()
-login_manager.login_view = "accounts.login"
-login_manager.login_message_category = "danger"
-login_manager.init_app(app)
 
+bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+login_manager = LoginManager()  # Add this line
+login_manager.init_app(app)  # Add this line
 
 # Registering blueprints
 from src.accounts.views import accounts_bp
@@ -25,9 +24,9 @@ app.register_blueprint(core_bp)
 
 from src.accounts.models import User
 
-#reloaddsthe user object from the user ID stored
-#takes ID of user and returns corresponding User object
+login_manager.login_view = "accounts.login"
+login_manager.login_message_category = "danger"
+
 @login_manager.user_loader
 def load_user(user_id):
-  return user.query.filter(User.id == int(user_id)).first()
-
+    return User.query.filter(User.id == int(user_id)).first()

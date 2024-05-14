@@ -29,15 +29,3 @@
 </div>
 
 {% endblock %}
-
-{% block js %}
-<script>
-    function copySecret() {
-    var copyText = document.getElementById("secret");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999); /*For mobile devices*/
-    document.execCommand("copy");
-    alert("Successfully copied TOTP secret token!");
-  }
-</script>
-{% endblock %}
